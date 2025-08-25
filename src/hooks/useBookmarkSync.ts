@@ -6,7 +6,7 @@ import {
   getBookmarkGroups,
   getBookmarkIdols,
   removeBookmarkIdol,
-} from '@/api/bookmarkApi';
+} from '@/api/bookmarkIdolApi';
 import { useSyncArrayData } from '@/hooks/useSyncArrayData';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 

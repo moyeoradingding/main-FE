@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { getBookmarkGroups, getBookmarkIdols } from '@/api/bookmarkApi';
+import { getBookmarkGroups, getBookmarkIdols } from '@/api/bookmarkIdolApi';
 import type { BookmarkGroup, BookmarkIdol } from '@/types/bookmark';
 
 interface FavoritesState {

@@ -10,7 +10,7 @@ import {
   addBookmarkIdol,
   getBookmarkIdols,
   removeBookmarkIdol,
-} from '@/api/bookmarkApi';
+} from '@/api/bookmarkIdolApi';
 import { searchIdolsApi } from '@/api/idolApi';
 import { useSyncArrayData } from '@/hooks/useSyncArrayData';
 import { useFavoritesStore } from '@/stores/favoritesStore';
