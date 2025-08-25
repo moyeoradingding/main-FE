@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { ChatComposerButtonStyles } from '../../chat.styles';
 
 interface ChatComposerProps {
+  socket: WebSocket | null;
   onToggleList: () => void;
 }
 
-function ChatComposer({ onToggleList }: ChatComposerProps) {
+function ChatComposer({ socket, onToggleList }: ChatComposerProps) {
   const [inputValue, setInputValue] = useState('');
   const trimmedInputValue = inputValue.trim();
 
@@ -17,10 +18,10 @@ function ChatComposer({ onToggleList }: ChatComposerProps) {
   };
 
   const handleSendMessage = () => {
-    if (!trimmedInputValue) return;
-
-    // console.log(inputValue);
-    setInputValue('');
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ message: inputValue }));
+      setInputValue('');
+    }
   };
 
   const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
