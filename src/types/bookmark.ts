@@ -20,3 +20,14 @@ export interface BookmarkIdol {
   idol_name: string;
   created_at: string;
 }
+
+export interface BookmarkSchedule {
+  id: number;
+  schedule_id: number;
+  start_time: string;
+  end_time: string;
+  location: string;
+  description: string;
+  entity_type: string;
+  entity_name: string;
+}
