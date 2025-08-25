@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 
@@ -6,7 +6,7 @@ import { getChatRoomParticipantsAPI } from '@/api/chatApi';
 import { useChatStore } from '@/stores/chatRoomIdStore';
 import { showErrorToast } from '@/utils/toastUtils';
 
-import type { ChatParticipant } from '../../chat.types';
+import type { ChatParticipant, PaginatedResponse } from '../../chat.types';
 import ChatContactItem from './ChatContactItem';
 
 interface ChatContactGroupProps {
@@ -16,10 +16,23 @@ interface ChatContactGroupProps {
 function ChatContactGroup({ isVisible }: ChatContactGroupProps) {
   const { roomId } = useChatStore();
 
-  const participantsQuery = useQuery<ChatParticipant[]>({
+  const participantsQuery = useInfiniteQuery<
+    PaginatedResponse<ChatParticipant>,
+    Error,
+    ChatParticipant[]
+  >({
     queryKey: ['getChatRoomParticipants', roomId],
-    queryFn: () => getChatRoomParticipantsAPI(roomId!),
+    queryFn: ({ pageParam }) =>
+      getChatRoomParticipantsAPI(roomId!, Number(pageParam)),
     enabled: !!roomId,
+    initialPageParam: 1,
+    getNextPageParam: lastPage => {
+      if (!lastPage.next) return undefined;
+      const url = new URL(lastPage.next);
+      const pageStr = url.searchParams.get('page');
+      return pageStr || undefined;
+    },
+    select: data => data.pages.flatMap(page => page.results),
   });
 
   useEffect(() => {
