@@ -1,15 +1,14 @@
-// import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore';
+
 import type { ChatMessageGroupTypes } from '../../chat.types';
 import ChatMessageItem from './ChatMessageItem';
 import TimeDivider from './TimeDivider';
 
-const USER_ID = 0;
-
 function ChatMessageGroup({ tKey, tValue }: ChatMessageGroupTypes) {
-  // const { user } = useUserStore();
-  // const userId = user?.user_id;
+  const { user } = useUserStore();
+  const userId = user?.user_id;
 
-  const isLastMsgMine = tValue.at(-1)?.sender.id === USER_ID;
+  const isLastMsgMine = tValue.at(-1)?.sender.id === userId;
 
   return (
     <>
