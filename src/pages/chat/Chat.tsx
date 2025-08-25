@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { createNewChatRoomAPI, getMyChatRoomListAPI } from '@/api/chatApi';
 import { useChatStore } from '@/stores/chatRoomIdStore';
+import { useUserStore } from '@/stores/userStore';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 import ChatComposer from './sections/chatComposer/ChatComposer';
@@ -14,7 +15,9 @@ const GROUP_NAME_TEST = 'test';
 
 function Chat() {
   const [isVisible, setIsVisible] = useState(false);
-  const { setRoomId } = useChatStore();
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const { roomId, setRoomId } = useChatStore();
+  const { accessToken } = useUserStore();
   const queryClient = useQueryClient();
 
   const handleToggleConversationList = () => {
@@ -53,9 +56,31 @@ function Chat() {
     } else {
       const currentRoomId = roomList.results[0].id;
       setRoomId(currentRoomId);
-      showSuccessToast(`현재 입장한 채팅방의 id는 ${currentRoomId}입니다.`);
+      showSuccessToast(`채팅방 목록을 불러왔습니다!`);
     }
   }, [createRoom, roomListQuery.data, roomListQuery.isError, setRoomId]);
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    const ws = new WebSocket(
+      `wss://api.moyeoradingding.site/ws/chats/${roomId}/?token=${accessToken}`,
+    );
+
+    ws.onopen = () => {
+      showSuccessToast(`채팅방에 연결했습니다!`);
+    };
+
+    ws.onerror = () => {
+      showErrorToast(`채팅방 연결을 실패했습니다😥`);
+    };
+
+    ws.onclose = () => {
+      showErrorToast(`채팅방 연결이 중단됐습니다😓`);
+    };
+
+    setSocket(ws);
+  }, [accessToken, roomId]);
 
   return (
     <div className="relative flex h-[calc(100dvh-64px)]">
@@ -74,10 +99,13 @@ function Chat() {
       </aside>
       <article className="relative flex min-h-0 flex-3 flex-col px-4">
         <section className="min-h-0 flex-1 pt-4">
-          <ChatMessageList />
+          <ChatMessageList socket={socket} />
         </section>
         <section className="shrink-0">
-          <ChatComposer onToggleList={handleToggleConversationList} />
+          <ChatComposer
+            socket={socket}
+            onToggleList={handleToggleConversationList}
+          />
         </section>
       </article>
     </div>
