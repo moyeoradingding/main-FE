@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -11,7 +11,11 @@ import {
 } from '@/utils/chat.utils';
 import { showErrorToast } from '@/utils/toastUtils';
 
-import type { FlattenChatTypes } from '../../chat.types';
+import type {
+  ChatMessage,
+  FlattenChatTypes,
+  PaginatedResponse,
+} from '../../chat.types';
 import ChatMessageGroup from './ChatMessageGroup';
 import DateDivider from './DateDivider';
 
@@ -28,12 +32,24 @@ interface ChatMessageListProps {
 function ChatMessageList({ socket }: ChatMessageListProps) {
   const [atBottom, setAtBottom] = useState(true);
   const { roomId } = useChatStore();
-  const queryClient = useQueryClient();
+  const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
 
-  const messagesQuery = useQuery({
+  const messagesQuery = useInfiniteQuery<
+    PaginatedResponse<ChatMessage>,
+    Error,
+    ChatMessage[]
+  >({
     queryKey: ['getChatMessage', roomId],
-    queryFn: () => getChatMessageAPI(roomId!),
+    queryFn: ({ pageParam }) => getChatMessageAPI(roomId!, Number(pageParam)),
     enabled: !!roomId,
+    initialPageParam: 1,
+    getNextPageParam: lastPage => {
+      if (!lastPage.next) return undefined;
+      const url = new URL(lastPage.next);
+      const pageStr = url.searchParams.get('page');
+      return pageStr || undefined;
+    },
+    select: data => data.pages.flatMap(page => page.results),
   });
 
   useEffect(() => {
@@ -43,25 +59,27 @@ function ChatMessageList({ socket }: ChatMessageListProps) {
       showErrorToast('채팅방 메시지 조회 에러 발생');
     }
 
-    const handleMessage = (event: MessageEvent) => {
-      const newMessage = JSON.parse(event.data);
+    setLiveMessages(messagesQuery.data ?? []);
 
-      console.log('서버에서 온 메시지', event.data);
+    // const handleMessage = (event: MessageEvent) => {
+    //   const data = JSON.parse(event.data);
+    //   console.log('data: ', data);
+    //   const newMessage = data.chat_room.last_message;
 
-      queryClient.setQueryData(['getChatMessage', roomId], (old: any) => {
-        if (!old) return [newMessage];
-        return [...old, newMessage];
-      });
-    };
+    //   queryClient.setQueryData(['getChatMessage', roomId], (old: any) => {
+    //     if (!old) return [newMessage];
+    //     return [...old, newMessage];
+    //   });
+    // };
 
-    socket.addEventListener('message', handleMessage);
+    // socket.addEventListener('message', handleMessage);
 
-    return () => {
-      socket.removeEventListener('message', handleMessage);
-    };
-  }, [messagesQuery.isError, queryClient, roomId, socket]);
+    // return () => {
+    //   socket.removeEventListener('message', handleMessage);
+    // };
+  }, [messagesQuery.data, messagesQuery.isError, roomId, socket]);
 
-  const sortedChatData = toSortedChats(messagesQuery.data ?? []);
+  const sortedChatData = toSortedChats(liveMessages ?? []);
 
   const groupedChatData = toGroupedChatMap(sortedChatData);
 
