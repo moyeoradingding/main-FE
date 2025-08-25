@@ -46,7 +46,7 @@ export type ChatMessage = {
     id: number;
     nickname: string;
     role: 'NORMAL' | 'IDOL' | 'MANAGER';
-    profile_image_url: string;
+    profile_image_url: string | null;
   };
   content: string;
   sent_at: string;
