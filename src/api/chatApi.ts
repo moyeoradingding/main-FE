@@ -72,16 +72,19 @@ export const leaveChatRoomAPI = async (roomId: number, roomName: string) => {
   return res.data;
 };
 
-export const getChatMessageAPI = async (roomId: number) => {
+export const getChatMessageAPI = async (roomId: number, page: number) => {
   const res = await axiosInstance.get(
-    `${API_BASE_URL}/chats/rooms/${roomId}/messages/`,
+    `${API_BASE_URL}/chats/rooms/${roomId}/messages/?page=${page}`,
   );
   return res.data;
 };
 
-export const getChatRoomParticipantsAPI = async (roomId: number) => {
+export const getChatRoomParticipantsAPI = async (
+  roomId: number,
+  page: number,
+) => {
   const res = await axiosInstance.get(
-    `${API_BASE_URL}/chats/rooms/${roomId}/participants/`,
+    `${API_BASE_URL}/chats/rooms/${roomId}/participants/?page=${page}`,
   );
   return res.data;
 };
