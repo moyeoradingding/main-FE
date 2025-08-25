@@ -31,3 +31,9 @@ export interface BookmarkSchedule {
   entity_type: string;
   entity_name: string;
 }
+
+export interface BookmarkScheduleDetail {
+  id: number;
+  schedule_type: string;
+  schedule_details: string;
+}
