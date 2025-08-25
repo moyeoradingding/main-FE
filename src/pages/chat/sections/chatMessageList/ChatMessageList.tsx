@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -21,9 +21,14 @@ const renderDataByTime = (_: number, chatData: FlattenChatTypes) => {
   return <ChatMessageGroup tKey={chatData.tKey} tValue={chatData.tValue} />;
 };
 
-function ChatMessageList() {
+interface ChatMessageListProps {
+  socket: WebSocket | null;
+}
+
+function ChatMessageList({ socket }: ChatMessageListProps) {
   const [atBottom, setAtBottom] = useState(true);
   const { roomId } = useChatStore();
+  const queryClient = useQueryClient();
 
   const messagesQuery = useQuery({
     queryKey: ['getChatMessage', roomId],
@@ -32,10 +37,29 @@ function ChatMessageList() {
   });
 
   useEffect(() => {
+    if (!socket) return undefined;
+
     if (messagesQuery.isError) {
       showErrorToast('채팅방 메시지 조회 에러 발생');
     }
-  }, [messagesQuery.isError]);
+
+    const handleMessage = (event: MessageEvent) => {
+      const newMessage = JSON.parse(event.data);
+
+      console.log('서버에서 온 메시지', event.data);
+
+      queryClient.setQueryData(['getChatMessage', roomId], (old: any) => {
+        if (!old) return [newMessage];
+        return [...old, newMessage];
+      });
+    };
+
+    socket.addEventListener('message', handleMessage);
+
+    return () => {
+      socket.removeEventListener('message', handleMessage);
+    };
+  }, [messagesQuery.isError, queryClient, roomId, socket]);
 
   const sortedChatData = toSortedChats(messagesQuery.data ?? []);
 
