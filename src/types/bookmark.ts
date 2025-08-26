@@ -24,7 +24,7 @@ export interface BookmarkIdol {
 export interface BookmarkSchedule {
   id: number;
   schedule_type: string;
-  schedule_details: string;
+  schedule_details: RawScheduleContent;
 }
 
 export interface RawScheduleContent {
