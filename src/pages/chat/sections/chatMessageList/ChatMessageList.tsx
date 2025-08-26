@@ -9,7 +9,6 @@ import {
   toGroupedChatMap,
   toSortedChats,
 } from '@/utils/chat.utils';
-import { showErrorToast } from '@/utils/toastUtils';
 
 import type {
   ChatMessage,
@@ -31,13 +30,14 @@ interface ChatMessageListProps {
 
 function ChatMessageList({ socket }: ChatMessageListProps) {
   const [atBottom, setAtBottom] = useState(true);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [rawMessages, setRawMessages] = useState<ChatMessage[]>([]);
   const { roomId } = useChatStore();
-  const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
 
   const messagesQuery = useInfiniteQuery<
     PaginatedResponse<ChatMessage>,
     Error,
-    ChatMessage[]
+    any
   >({
     queryKey: ['getChatMessage', roomId],
     queryFn: ({ pageParam }) => getChatMessageAPI(roomId!, Number(pageParam)),
@@ -46,59 +46,68 @@ function ChatMessageList({ socket }: ChatMessageListProps) {
     getNextPageParam: lastPage => {
       if (!lastPage.next) return undefined;
       const url = new URL(lastPage.next);
-      const pageStr = url.searchParams.get('page');
-      return pageStr || undefined;
+      return Number(url.searchParams.get('page'));
     },
-    select: data => data.pages.flatMap(page => page.results),
   });
 
   useEffect(() => {
-    if (!socket) return undefined;
-
-    if (messagesQuery.isError) {
-      showErrorToast('채팅방 메시지 조회 에러 발생');
+    if (isFirstLoad && messagesQuery.isSuccess && messagesQuery.data) {
+      setIsFirstLoad(false);
+      setRawMessages(messagesQuery.data.pages[0].results);
     }
+  }, [isFirstLoad, messagesQuery.data, messagesQuery.isSuccess]);
 
-    setLiveMessages(messagesQuery.data ?? []);
+  useEffect(() => {
+    if (!socket || !messagesQuery.data) return undefined;
 
-    // const handleMessage = (event: MessageEvent) => {
-    //   const data = JSON.parse(event.data);
-    //   console.log('data: ', data);
-    //   const newMessage = data.chat_room.last_message;
+    const handleMessage = (event: MessageEvent) => {
+      const data = JSON.parse(event.data);
 
-    //   queryClient.setQueryData(['getChatMessage', roomId], (old: any) => {
-    //     if (!old) return [newMessage];
-    //     return [...old, newMessage];
-    //   });
-    // };
+      if (data.type === 'chat.message') {
+        const newMessage: ChatMessage = data.message;
+        setRawMessages(prev => [...prev, newMessage]);
+      }
+    };
 
-    // socket.addEventListener('message', handleMessage);
+    socket.addEventListener('message', handleMessage);
 
-    // return () => {
-    //   socket.removeEventListener('message', handleMessage);
-    // };
-  }, [messagesQuery.data, messagesQuery.isError, roomId, socket]);
+    return () => {
+      socket.removeEventListener('message', handleMessage);
+    };
+  }, [messagesQuery, socket]);
 
-  const sortedChatData = toSortedChats(liveMessages ?? []);
+  const handleFetchNextPage = async (): Promise<void> => {
+    const res = await messagesQuery.fetchNextPage();
+    const lastPage = res.data?.pages.at(-1);
+    if (!lastPage) return;
 
-  const groupedChatData = toGroupedChatMap(sortedChatData);
+    setRawMessages(prev => [...lastPage.results, ...prev]);
+  };
 
-  const flattenChatData = toFlattenChats(groupedChatData);
+  const sorted = toSortedChats(rawMessages);
+  const grouped = toGroupedChatMap(sorted);
+  const flattenedChatData = toFlattenChats(grouped);
 
   return (
     <div className="h-full">
       <Virtuoso
-        className="chat-scrollbar flex flex-col py-2 pe-2"
-        data={flattenChatData}
-        computeItemKey={(_, data) => `D-${data.key}`}
-        alignToBottom
-        initialTopMostItemIndex={{
-          index: flattenChatData.length - 1,
-          align: 'end',
-        }}
+        className="chat-scrollbar py-2 pe-2"
+        data={flattenedChatData}
+        initialTopMostItemIndex={flattenedChatData.length - 1}
+        firstItemIndex={10000 - flattenedChatData.length}
+        computeItemKey={(_, data) => data.key}
         followOutput={atBottom ? 'smooth' : false}
         atBottomStateChange={setAtBottom}
         itemContent={renderDataByTime}
+        atTopStateChange={atTop => {
+          if (
+            atTop &&
+            messagesQuery.hasNextPage &&
+            !messagesQuery.isFetchingNextPage
+          )
+            handleFetchNextPage();
+        }}
+        increaseViewportBy={{ top: 200, bottom: 0 }}
       />
     </div>
   );
