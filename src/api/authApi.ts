@@ -44,6 +44,29 @@ export const loginUser = async (loginData: LoginFormValues) => {
 };
 
 /**
+ * 카카오 소셜 로그인 콜백 API
+ * @param code - 카카오 인가 코드
+ */
+export const kakaoLoginCallback = async (code: string) => {
+  const response = await axiosInstance.post('/users/kakao/callback/', code);
+  const {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    user,
+  } = response.data;
+
+  if (!accessToken) {
+    throw new Error('카카오 로그인에 실패했습니다. 토큰이 없습니다.');
+  }
+
+  return {
+    user,
+    accessToken,
+    refreshToken,
+  };
+};
+
+/**
  * 로그아웃 API
  */
 export const logoutUser = async () => {
