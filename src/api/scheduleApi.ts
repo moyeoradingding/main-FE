@@ -1,8 +1,11 @@
 import axiosInstance from '@/api/axiosInstance';
-import type { Schedule, IdolSchedule } from '@/types/schedule';
+import type { IdolSchedule, Schedule } from '@/types/schedule';
 
-const pickList = (data: any): any[] =>
-  Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : [];
+const pickList = (data: any): any[] => {
+  if (Array.isArray(data?.results)) return data.results;
+  if (Array.isArray(data)) return data;
+  return [];
+};
 
 const baseFields = (raw: any) => {
   const start =
@@ -24,19 +27,19 @@ const baseFields = (raw: any) => {
 const toIdolSchedule = (raw: any): IdolSchedule => {
   const base = baseFields(raw);
 
-  const idolId =
-    typeof raw?.idol === 'number'
-      ? raw.idol
-      : typeof raw?.idol?.id === 'number'
-        ? raw.idol.id
-        : -1;
+  let idolId = -1;
+  if (typeof raw?.idol === 'number') {
+    idolId = raw.idol;
+  } else if (typeof raw?.idol?.id === 'number') {
+    idolId = raw.idol.id;
+  }
 
-  const idolName =
-    typeof raw?.idol_name === 'string'
-      ? raw.idol_name
-      : typeof raw?.idol?.name === 'string'
-        ? raw.idol.name
-        : '';
+  let idolName = '';
+  if (typeof raw?.idol_name === 'string') {
+    idolName = raw.idol_name;
+  } else if (typeof raw?.idol?.name === 'string') {
+    idolName = raw.idol.name;
+  }
 
   return {
     ...base,

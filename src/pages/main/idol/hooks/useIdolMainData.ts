@@ -13,8 +13,7 @@ export function useIdolMainData() {
       try {
         const schedules = await fetchIdolSchedules();
         setAllSchedules(schedules);
-      } catch (e) {
-        console.error('아이돌 스케줄 불러오기 실패:', e);
+      } catch (err) {
         setAllSchedules([]);
       }
     };
