@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import {
   addBookmarkIdol,
@@ -59,23 +59,31 @@ export function useBookmarkSync() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['idols', 'favorites'] });
       queryClient.invalidateQueries({ queryKey: ['groups', 'favorites'] });
-      useFavoritesStore.getState().fetchFavorites();
     },
   });
+
+  const toggleFavoriteAndSync = useCallback(
+    (idolId: number) => {
+      const isCurrentlyFavorited = favorites.includes(idolId);
+      if (isCurrentlyFavorited) {
+        syncFavoritesWithServer({ added: [], removed: [idolId] });
+      } else {
+        syncFavoritesWithServer({ added: [idolId], removed: [] });
+      }
+    },
+    [favorites, syncFavoritesWithServer],
+  );
 
   useSyncArrayData<number>({
     serverData: bookmarkedIdolsRaw?.map(b => b.idol),
     clientData: favorites,
     applyFn: toggleFavorite,
-    onSync: (added, removed) => {
-      syncFavoritesWithServer({ added, removed });
-    },
   });
 
   return {
     favoriteIdols,
     favoriteGroups,
     isFavoritesLoading,
-    toggleFavorite,
+    toggleFavorite: toggleFavoriteAndSync,
   };
 }
