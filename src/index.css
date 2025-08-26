@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+
+@utility chat-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-gray-200);
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-300);
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    margin-left: 8px;
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+  scrollbar-gutter: stable;
+}
+
+@theme {
+  --color-kakao-yellow: #FEE500;
+  --color-kakao-hover: #F7DD01;
+  --animate-float: float 5s ease-in-out infinite;
+
+  @keyframes float {
+    50% {
+      transform: translate(0, 10px);
+    }
+  }
+}
