@@ -7,9 +7,13 @@ export const getMyChatRoomListAPI = async () => {
   return res.data;
 };
 
-export const createNewChatRoomAPI = async (groupName: string) => {
+export const createNewChatRoomAPI = async (
+  id: number,
+  participantIds: number[],
+) => {
   const res = await axiosInstance.post(`${API_BASE_URL}/chats/rooms/`, {
-    room_name: `${groupName}Room`,
+    room_name: `ChatRoomBy${id}`,
+    participant_ids: participantIds,
   });
   return res.data;
 };
@@ -72,16 +76,24 @@ export const leaveChatRoomAPI = async (roomId: number, roomName: string) => {
   return res.data;
 };
 
-export const getChatMessageAPI = async (roomId: number) => {
+export const getChatMessageAPI = async (roomId: number, page: number) => {
   const res = await axiosInstance.get(
-    `${API_BASE_URL}/chats/rooms/${roomId}/messages/`,
+    `${API_BASE_URL}/chats/rooms/${roomId}/messages/?page=${page}`,
   );
   return res.data;
 };
 
-export const getChatRoomParticipantsAPI = async (roomId: number) => {
+export const getChatRoomParticipantsAPI = async (
+  roomId: number,
+  page: number,
+) => {
   const res = await axiosInstance.get(
-    `${API_BASE_URL}/chats/rooms/${roomId}/participants/`,
+    `${API_BASE_URL}/chats/rooms/${roomId}/participants/?page=${page}`,
   );
+  return res.data;
+};
+
+export const getGroupMembersAPI = async () => {
+  const res = await axiosInstance.get(`${API_BASE_URL}/groups/members/`);
   return res.data;
 };
