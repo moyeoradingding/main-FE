@@ -69,8 +69,6 @@ export function useFanMainData() {
         description: it.description ?? '',
         isPublic: Boolean(it.is_public ?? it.isPublic ?? true),
         idol: { id: currentIdol.id, name: currentIdol.name },
-        group: undefined,
-        members: undefined,
         location: it.location ?? '',
       }),
     ) as Schedule[];
