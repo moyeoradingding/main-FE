@@ -57,12 +57,17 @@ export const toFlattenChats = (
   groupedChatMap: GroupedChatListTypes,
 ): FlattenChatTypes[] =>
   Object.entries(groupedChatMap).flatMap(([dKey, timeMap]) => {
+    const firstMessageId = Object.values(timeMap)[0]?.[0]?.id;
+
     const timeEntries = Object.entries(timeMap).map(([tKey, tValue]) => ({
       type: 'time' as const,
       dKey,
       tKey,
       tValue,
-      key: `T-${dKey}-${tKey}`,
+      key: `T-${dKey}-${tKey}-${tValue[0]?.id}`,
     }));
-    return [{ type: 'date' as const, dKey, key: `D-${dKey}` }, ...timeEntries];
+    return [
+      { type: 'date' as const, dKey, key: `D-${dKey}-${firstMessageId}` },
+      ...timeEntries,
+    ];
   });
