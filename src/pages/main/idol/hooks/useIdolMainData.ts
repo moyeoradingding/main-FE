@@ -1,40 +1,39 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { IdolSchedule, Schedule } from '@/types/schedule';
+import { fetchIdolSchedules } from '@/api/scheduleApi';
+import type { Schedule } from '@/types/schedule';
 
 export function useIdolMainData() {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(() => dayjs());
   const [allSchedules, setAllSchedules] = useState<Schedule[]>([]);
 
   useEffect(() => {
-    const iso = selectedDate.format('YYYY-MM-DD');
+    const load = async () => {
+      try {
+        const schedules = await fetchIdolSchedules();
+        setAllSchedules(schedules);
+      } catch (e) {
+        console.error('아이돌 스케줄 불러오기 실패:', e);
+        setAllSchedules([]);
+      }
+    };
+    load();
+  }, []);
 
-    // TODO: API 연동: GET /idol/me/schedules?date=iso
-    const mock: IdolSchedule[] = [
-      {
-        id: 1,
-        title: '라디오 출연',
-        startTime: `${iso}T09:30:00`,
-        endTime: `${iso}T10:30:00`,
-        isPublic: true,
-        idol: { id: 101, name: '아이돌 A' },
-        description: 'SBS 파워FM 생방',
-      },
-      {
-        id: 2,
-        title: '안무 연습',
-        startTime: `${iso}T14:00:00`,
-        endTime: `${iso}T16:00:00`,
-        isPublic: true,
-        idol: { id: 101, name: '아이돌 A' },
-      },
-    ];
+  const monthlySchedules = useMemo(
+    () =>
+      allSchedules.filter(s =>
+        dayjs(s.startTime).isSame(selectedDate, 'month'),
+      ),
+    [allSchedules, selectedDate],
+  );
 
-    setAllSchedules(mock as Schedule[]);
-  }, [selectedDate]);
+  const dailySchedules = useMemo(
+    () =>
+      allSchedules.filter(s => dayjs(s.startTime).isSame(selectedDate, 'day')),
+    [allSchedules, selectedDate],
+  );
 
-  const filteredSchedules = useMemo(() => allSchedules, [allSchedules]);
-
-  return { selectedDate, setSelectedDate, filteredSchedules };
+  return { selectedDate, setSelectedDate, monthlySchedules, dailySchedules };
 }

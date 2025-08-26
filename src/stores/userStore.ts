@@ -7,6 +7,7 @@ interface User {
   nickname: string;
   profile_image_url?: string;
   role?: string;
+  idol_id?: number;
 }
 
 interface UserState {
@@ -34,6 +35,8 @@ export const useUserStore = create<UserState>()(
           refreshToken: refreshToken || '',
         });
         // console.log('useUserStore: login action - state after set:', get());
+        const nick = user.nickname || user.email || '사용자';
+        sessionStorage.setItem('nickname', nick);
       },
       logout: () => {
         set({
