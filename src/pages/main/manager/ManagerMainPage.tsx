@@ -1,6 +1,7 @@
 import { ChatBubbleLeftRightIcon, PlusIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/common/Button';
 import Calendar from '@/components/common/calendar/Calendar';
@@ -49,6 +50,8 @@ export default function ManagerMainPage() {
     closeDelete,
     resetTarget,
   } = useManagerScheduleModals();
+
+  const navigate = useNavigate();
 
   const handleCreateOpen = useCallback(() => {
     openCreate();
@@ -126,10 +129,8 @@ export default function ManagerMainPage() {
   );
 
   const handleChatClick = useCallback(() => {
-    // TODO: 채팅 페이지로 라우팅 구현 예정
-    // eslint-disable-next-line no-console
-    console.log('아이돌과 채팅으로 이동');
-  }, []);
+    navigate('/chat');
+  }, [navigate]);
 
   const editDefaults: Partial<FormValues> | undefined = useMemo(() => {
     if (targetId == null) return undefined;
