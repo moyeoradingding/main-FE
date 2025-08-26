@@ -17,6 +17,7 @@ function DateScheduleList({
   onEditClick,
   onDeleteClick,
   className,
+  toggleScheduleBookmark,
 }: DateScheduleListProps) {
   const items = sortByTimeAsc(filterByDate(schedules, selectedDate));
 
@@ -44,7 +45,7 @@ function DateScheduleList({
         </p>
       ) : (
         <ul className="flex flex-col gap-2.5 md:gap-3">
-          {items.slice(0, 4).map(item => (
+          {items.map(item => (
             <DateScheduleItem
               key={item.id}
               item={item}
@@ -52,6 +53,7 @@ function DateScheduleList({
               onNotifyToggle={onNotifyToggle}
               onEditClick={onEditClick}
               onDeleteClick={onDeleteClick}
+              toggleScheduleBookmark={toggleScheduleBookmark}
             />
           ))}
         </ul>

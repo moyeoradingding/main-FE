@@ -11,7 +11,6 @@ import {
 import clsx from 'clsx';
 import { useState } from 'react';
 
-import { useFavoriteSchedulesStore } from '@/stores/favoriteSchedulesStore';
 import { isGroupSchedule, isIdolSchedule } from '@/types/schedule';
 
 import type { DateScheduleItemProps } from './dateSchedule.types';
@@ -47,16 +46,13 @@ export default function DateScheduleItem({
   onNotifyToggle,
   onEditClick,
   onDeleteClick,
+  toggleScheduleBookmark,
 }: DateScheduleItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const handleToggleOpen = () => setIsOpen(prev => !prev);
 
-  const { toggleFavoriteSchedule, isFavoriteSchedule } =
-    useFavoriteSchedulesStore();
-
   const actionsInfo = getScheduleActions(userRole, item, {
-    toggleFavoriteSchedule,
-    isFavoriteSchedule,
+    toggleScheduleBookmark,
     onNotifyToggle,
     onEditClick,
     onDeleteClick,
