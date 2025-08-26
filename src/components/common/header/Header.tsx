@@ -23,11 +23,20 @@ function Header() {
     }
   };
 
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleLogoClick();
+    }
+  };
+
   return (
     <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-gray-300 bg-white px-6 md:px-10">
       <div className="mx-auto flex h-full max-w-screen-xl items-center justify-between">
         <div
           onClick={handleLogoClick}
+          onKeyDown={onKeyDown}
+          role="button"
+          tabIndex={0}
           className="cursor-pointer text-xl font-bold"
         >
           DingDing
