@@ -9,6 +9,7 @@ interface BaseSchedule {
   isNotified?: boolean;
   place?: string;
   location?: string;
+  realScheduleId?: number;
 }
 
 export interface GroupInfo {
