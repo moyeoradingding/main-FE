@@ -1,5 +1,6 @@
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/common/Button';
 import Calendar from '@/components/common/calendar/Calendar';
@@ -11,10 +12,11 @@ import { useIdolMainData } from './hooks/useIdolMainData';
 export default function IdolMainPage() {
   const { selectedDate, setSelectedDate, filteredSchedules } =
     useIdolMainData();
+  const navigate = useNavigate();
 
   const handleChatClick = useCallback(() => {
-    // TODO: 실제 라우팅 연결 (예: navigate('/chat'))
-  }, []);
+    navigate('/chat');
+  }, [navigate]);
 
   const rightAction = (
     <Button
@@ -25,7 +27,7 @@ export default function IdolMainPage() {
       className="group mt-6 flex items-center gap-2 border-fuchsia-400 px-6 font-bold whitespace-nowrap text-fuchsia-600 hover:bg-fuchsia-400 hover:text-white lg:ml-6"
     >
       <ChatBubbleLeftRightIcon className="h-5 w-5 text-fuchsia-500 transition-colors group-hover:text-white" />
-      매니저와 채팅
+      그룹 채팅
     </Button>
   );
 
