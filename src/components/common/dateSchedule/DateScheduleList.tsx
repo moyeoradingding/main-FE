@@ -26,7 +26,6 @@ function DateScheduleList({
       className={clsx(
         'w-full rounded-2xl border border-gray-200 bg-white shadow-md',
         'p-3 md:p-4',
-        'mt-2',
         'flex flex-col',
         className,
       )}
