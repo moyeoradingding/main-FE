@@ -17,11 +17,13 @@ export interface DateScheduleListProps extends ScheduleActionProps {
   selectedDate: string;
   schedules: Schedule[];
   className?: string;
+  toggleScheduleBookmark?: (schedule: Schedule) => void;
 }
 
 export interface DateScheduleItemProps extends ScheduleActionProps {
   item: Schedule;
   userRole: UserRole;
+  toggleScheduleBookmark?: (schedule: Schedule) => void;
 }
 
 // 아이콘 버튼 컴포넌트 Props 타입

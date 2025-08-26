@@ -20,3 +20,29 @@ export interface BookmarkIdol {
   idol_name: string;
   created_at: string;
 }
+
+export interface BookmarkSchedule {
+  id: number;
+  schedule_type: string;
+  schedule_details: RawScheduleContent;
+}
+
+export interface RawScheduleContent {
+  id: number;
+  title: string;
+  start_time: string;
+  end_time: string;
+  location: string;
+  description: string;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+  idol?: number;
+  group?: number;
+}
+
+export interface BookmarkScheduleDetail {
+  id: number;
+  schedule_type: string;
+  schedule_details: RawScheduleContent;
+}

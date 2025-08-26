@@ -9,14 +9,15 @@ interface BaseSchedule {
   isNotified?: boolean;
   place?: string;
   location?: string;
+  realScheduleId?: number;
 }
 
-interface GroupInfo {
+export interface GroupInfo {
   id: number;
   name: string;
 }
 
-interface IdolInfo {
+export interface IdolInfo {
   id: number;
   name: string;
 }

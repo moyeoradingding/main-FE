@@ -1,46 +1,48 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
+import { addMySchedule, removeMySchedule } from '@/api/bookmarkScheduleApi';
 import Calendar from '@/components/common/calendar/Calendar';
 import DateScheduleList from '@/components/common/dateSchedule/DateScheduleList';
+import { useMyScheduleData } from '@/hooks/useMyScheduleData';
 import type { Schedule } from '@/types/schedule';
 
 export default function MySchedule() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [viewDate, setViewDate] = useState(dayjs());
-  const [allSchedules, setAllSchedules] = useState<Schedule[]>([]);
 
-  useEffect(() => {
-    const fetchAllSchedules = async () => {
-      try {
-        const response = await fetch('/schedules/my');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: Schedule[] = await response.json();
-        setAllSchedules(data);
-      } catch (error) {
-        // console.error('Failed to fetch all schedules:', error);
-        setAllSchedules([]);
+  const { mySchedules, isLoading, isError } = useMyScheduleData();
+  const queryClient = useQueryClient();
+
+  const { mutate: toggleScheduleBookmark } = useMutation({
+    mutationFn: async (schedule: Schedule) => {
+      if (schedule.isBookmarked) {
+        await removeMySchedule(schedule.id);
+      } else if ('idol' in schedule && schedule.idol) {
+        await addMySchedule({ idol_schedule: schedule.idol.id });
+      } else if ('group' in schedule && schedule.group) {
+        await addMySchedule({ group_schedule: schedule.group.id });
+      } else {
+        throw new Error('Cannot bookmark schedule without idol or group ID');
       }
-    };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mySchedules'] });
+    },
+  });
 
-    fetchAllSchedules();
-  }, []);
-
-  // Calendar에 전달할 월별 스케줄
   const monthlySchedules = useMemo(() => {
-    return allSchedules.filter(schedule =>
+    return mySchedules.filter(schedule =>
       dayjs(schedule.startTime).isSame(viewDate, 'month'),
     );
-  }, [allSchedules, viewDate]);
+  }, [mySchedules, viewDate]);
 
-  // DateScheduleList에 전달할 일별 스케줄
   const dailySchedules = useMemo(() => {
-    return allSchedules.filter(schedule =>
+    return mySchedules.filter(schedule =>
       dayjs(schedule.startTime).isSame(selectedDate, 'day'),
     );
-  }, [allSchedules, selectedDate]);
+  }, [mySchedules, selectedDate]);
 
   const handleCalendarDateChange = (date: Dayjs) => {
     setSelectedDate(date);
@@ -48,6 +50,14 @@ export default function MySchedule() {
       setViewDate(date);
     }
   };
+
+  if (isLoading) {
+    return <div>내 스케줄을 불러오는 중...</div>;
+  }
+
+  if (isError) {
+    return <div>내 스케줄을 불러오는데 실패했습니다.</div>;
+  }
 
   return (
     <>
@@ -63,6 +73,7 @@ export default function MySchedule() {
         userRole="favorites"
         selectedDate={selectedDate.format('YYYY-MM-DD')}
         schedules={dailySchedules}
+        toggleScheduleBookmark={toggleScheduleBookmark}
       />
     </>
   );
