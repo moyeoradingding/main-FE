@@ -11,12 +11,12 @@ interface BaseSchedule {
   location?: string;
 }
 
-interface GroupInfo {
+export interface GroupInfo {
   id: number;
   name: string;
 }
 
-interface IdolInfo {
+export interface IdolInfo {
   id: number;
   name: string;
 }
