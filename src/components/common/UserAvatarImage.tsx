@@ -22,7 +22,7 @@ const avatarSizeVariants = cva(
 );
 
 type UserAvatarImageProps = {
-  profileImageUrl?: string;
+  profileImageUrl?: string | null;
   altText?: string;
   avatarSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
