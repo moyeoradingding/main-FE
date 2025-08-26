@@ -74,7 +74,7 @@ function Calendar({ selectedDate, onDateChange, schedules }: CalendarProps) {
   }, [selectedDate]);
 
   return (
-    <div className="h-fit w-full rounded-md p-1 shadow-[0_0_20px_5px_#00000015]">
+    <div className="h-fit w-full rounded-2xl border border-gray-200 p-1 shadow-md">
       <CalendarToolbar
         year={viewDate.year()}
         month={viewDate.month() + 1}
