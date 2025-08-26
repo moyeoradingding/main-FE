@@ -101,14 +101,20 @@ function Chat() {
       showErrorToast(`채팅방 연결을 실패했습니다😥`);
     };
 
-    ws.onclose = () => {
-      showErrorToast(`채팅방 연결이 중단됐습니다😓`);
+    ws.onclose = e => {
+      if (e.code === 1006) {
+        showErrorToast(`채팅방 연결이 중단됐습니다😓`);
+      }
     };
 
     setSocket(ws);
 
     // eslint-disable-next-line consistent-return
-    return () => ws.close();
+    return () => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
   }, [accessToken, roomId]);
 
   return (
