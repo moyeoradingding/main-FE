@@ -24,7 +24,7 @@ export interface ScheduleActionInfo {
 }
 
 type Handlers = {
-  toggleScheduleBookmark: (schedule: Schedule) => void;
+  toggleScheduleBookmark?: (schedule: Schedule) => void;
   onNotifyToggle?: (id: number) => void;
   onEditClick?: (id: number) => void;
   onDeleteClick?: (id: number) => void;
@@ -40,7 +40,7 @@ export function getScheduleActions(
     onDeleteClick,
   }: Handlers,
 ): ScheduleActionInfo[] {
-  const { isBookmarked } = item;
+  const isBookmarked = item.isBookmarked;
 
   switch (userRole) {
     case 'fan':
@@ -49,7 +49,7 @@ export function getScheduleActions(
           key: 'bookmark',
           ariaLabel: '즐겨찾기',
           icon: isBookmarked ? 'star-filled' : 'star',
-          onClick: () => toggleScheduleBookmark(item),
+          onClick: () => toggleScheduleBookmark?.(item),
         },
       ];
 
@@ -59,7 +59,7 @@ export function getScheduleActions(
           key: 'bookmark',
           ariaLabel: '즐겨찾기',
           icon: isBookmarked ? 'star-filled' : 'star',
-          onClick: () => toggleScheduleBookmark(item),
+          onClick: () => toggleScheduleBookmark?.(item),
         },
         {
           key: 'notification',
