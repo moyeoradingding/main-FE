@@ -48,7 +48,8 @@ export const loginUser = async (loginData: LoginFormValues) => {
  * @param code - 카카오 인가 코드
  */
 export const kakaoLoginCallback = async (code: string) => {
-  const response = await axiosInstance.post('/users/kakao/callback/', code);
+  const response = await axiosInstance.post('/users/kakao/callback/', { code });
+
   const {
     access_token: accessToken,
     refresh_token: refreshToken,
