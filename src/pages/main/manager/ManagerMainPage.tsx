@@ -165,7 +165,7 @@ export default function ManagerMainPage() {
         className="group inline-flex h-12 w-[185px] items-center justify-center gap-2 border-fuchsia-400 px-6 font-semibold whitespace-nowrap hover:bg-fuchsia-500 hover:text-white"
       >
         <ChatBubbleLeftRightIcon className="h-6 w-6 flex-shrink-0 transition-colors group-hover:text-white" />
-        아이돌과 채팅
+        그룹 채팅
       </Button>
     </div>
   );

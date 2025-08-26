@@ -27,7 +27,7 @@ export default function IdolMainPage() {
       className="group mt-6 flex items-center gap-2 border-fuchsia-400 px-6 font-bold whitespace-nowrap text-fuchsia-600 hover:bg-fuchsia-400 hover:text-white lg:ml-6"
     >
       <ChatBubbleLeftRightIcon className="h-5 w-5 text-fuchsia-500 transition-colors group-hover:text-white" />
-      매니저와 채팅
+      그룹 채팅
     </Button>
   );
 
