@@ -2,9 +2,12 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { useQuery } from '@tanstack/react-query';
+import { fetchIdolDetail } from '@/api/idolApi';
+
 import { useBookmarkSync } from '@/hooks/useBookmarkSync';
 import { ALL_SCHEDULES } from '@/mocks/data';
-import { MOCK_IDOLS } from '@/mocks/data/idols';
+
 import type { Schedule } from '@/types/schedule';
 import { isGroupSchedule, isIdolSchedule } from '@/types/schedule';
 
@@ -17,9 +20,22 @@ export function useFanMainData() {
 
   const { favoriteIdols, toggleFavorite } = useBookmarkSync();
 
+  const { data: idolDetail } = useQuery({
+    queryKey: ['idol', 'detail', parsedIdolId],
+    enabled: Number.isFinite(parsedIdolId) && parsedIdolId > 0,
+    queryFn: () => fetchIdolDetail(parsedIdolId),
+  });
+
   const currentIdol = useMemo(
-    () => MOCK_IDOLS.find(idol => idol.id === parsedIdolId) ?? null,
-    [parsedIdolId],
+    () =>
+      idolDetail
+        ? {
+            id: Number(idolDetail.id),
+            name: idolDetail.name,
+            groupName: idolDetail.groupName ?? '',
+          }
+        : null,
+    [idolDetail],
   );
 
   const isFavorite = useMemo(
@@ -36,6 +52,8 @@ export function useFanMainData() {
       return;
     }
 
+    // ⚠️ 스케줄은 아직 목업(ALL_SCHEDULES) 필터 유지
+    //    → 추후 /api/v1/idols/{id}/schedules/ 로 교체 예정
     const { name: idolName, groupName } = currentIdol;
 
     const schedules = ALL_SCHEDULES.filter(schedule => {

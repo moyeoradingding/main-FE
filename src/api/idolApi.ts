@@ -49,3 +49,17 @@ export async function searchIdolsApi(
     nextPage: next ? page + 1 : undefined,
   };
 }
+
+// 아이돌 상세 조회 페이지
+export async function fetchIdolDetail(id: number | string): Promise<Idol> {
+  const res = await axiosInstance.get(`/idols/${id}/`);
+  const it = res.data as any;
+
+  return {
+    id: String(it.id),
+    name: it.name,
+    avatarUrl: avatarFromServerOrDicebear(it.avatar_url, it.name),
+    groupName: it.group_name ?? '',
+    position: it.position ?? '',
+  };
+}
