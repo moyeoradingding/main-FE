@@ -74,6 +74,7 @@ export default function MySchedule() {
         selectedDate={selectedDate.format('YYYY-MM-DD')}
         schedules={dailySchedules}
         toggleScheduleBookmark={toggleScheduleBookmark}
+        className="mt-6"
       />
     </>
   );
