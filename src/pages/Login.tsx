@@ -17,6 +17,8 @@ const USER_TYPE = [
   { id: 'IDOL', label: '아이돌' },
 ];
 
+const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_KAKAO_REST_API_KEY}&redirect_uri=${import.meta.env.VITE_KAKAO_REDIRECT_URI}&response_type=code`;
+
 export default function Login() {
   const { submit, isLoading } = useLogin();
 
@@ -29,6 +31,14 @@ export default function Login() {
   });
 
   const { register } = form;
+
+  const handleKakaoLogin = () => {
+    console.log(
+      'Redirect URI being used:',
+      import.meta.env.VITE_KAKAO_REDIRECT_URI,
+    );
+    window.location.href = KAKAO_AUTH_URL;
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -81,6 +91,7 @@ export default function Login() {
             variant="secondary"
             size="lg"
             className="bg-kakao-yellow hover:bg-kakao-hover w-full font-semibold"
+            onClick={handleKakaoLogin}
           >
             <KakaoIcon className="absolute left-4" />
             Kakao로 시작하기
