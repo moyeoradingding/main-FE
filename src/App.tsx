@@ -7,6 +7,7 @@ import Layout from '@/components/layouts/Layout';
 import MyPageLayout from '@/components/layouts/MyPageLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import IdolSearchPage from '@/pages/idolSearch/IdolSearchPage';
+import KakaoCallback from '@/pages/KakaoCallback';
 import LandingPage from '@/pages/landing/LandingPage';
 import Login from '@/pages/Login';
 import FanMainPage from '@/pages/main/fan/FanMainPage';
@@ -28,6 +29,7 @@ function App() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />
+        <Route path="kakao/callback" element={<KakaoCallback />} />
       </Route>
 
       <Route path="/search" element={<Layout />}>
