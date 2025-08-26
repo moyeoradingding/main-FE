@@ -1,6 +1,6 @@
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/common/Button';
 import Calendar from '@/components/common/calendar/Calendar';
