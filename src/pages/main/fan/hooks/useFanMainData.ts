@@ -1,15 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useQuery } from '@tanstack/react-query';
 import { fetchIdolDetail, fetchIdolSchedules } from '@/api/idolApi';
-
 import { useBookmarkSync } from '@/hooks/useBookmarkSync';
-
 // ⚠️ TODO(삭제 예정): 스케줄 API가 안정되면 아래 목업 import는 제거
 import { ALL_SCHEDULES } from '@/mocks/data';
-
 import type { Schedule } from '@/types/schedule';
 import { isGroupSchedule, isIdolSchedule } from '@/types/schedule';
 
