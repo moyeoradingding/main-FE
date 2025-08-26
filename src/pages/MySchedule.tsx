@@ -1,46 +1,27 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Calendar from '@/components/common/calendar/Calendar';
 import DateScheduleList from '@/components/common/dateSchedule/DateScheduleList';
-import type { Schedule } from '@/types/schedule';
+import { useMyScheduleData } from '@/hooks/useMyScheduleData';
 
 export default function MySchedule() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [viewDate, setViewDate] = useState(dayjs());
-  const [allSchedules, setAllSchedules] = useState<Schedule[]>([]);
 
-  useEffect(() => {
-    const fetchAllSchedules = async () => {
-      try {
-        const response = await fetch('/schedules/my');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: Schedule[] = await response.json();
-        setAllSchedules(data);
-      } catch (error) {
-        // console.error('Failed to fetch all schedules:', error);
-        setAllSchedules([]);
-      }
-    };
+  const { mySchedules, isLoading, isError } = useMyScheduleData();
 
-    fetchAllSchedules();
-  }, []);
-
-  // Calendar에 전달할 월별 스케줄
   const monthlySchedules = useMemo(() => {
-    return allSchedules.filter(schedule =>
+    return mySchedules.filter(schedule =>
       dayjs(schedule.startTime).isSame(viewDate, 'month'),
     );
-  }, [allSchedules, viewDate]);
+  }, [mySchedules, viewDate]);
 
-  // DateScheduleList에 전달할 일별 스케줄
   const dailySchedules = useMemo(() => {
-    return allSchedules.filter(schedule =>
+    return mySchedules.filter(schedule =>
       dayjs(schedule.startTime).isSame(selectedDate, 'day'),
     );
-  }, [allSchedules, selectedDate]);
+  }, [mySchedules, selectedDate]);
 
   const handleCalendarDateChange = (date: Dayjs) => {
     setSelectedDate(date);
@@ -48,6 +29,14 @@ export default function MySchedule() {
       setViewDate(date);
     }
   };
+
+  if (isLoading) {
+    return <div>내 스케줄을 불러오는 중...</div>;
+  }
+
+  if (isError) {
+    return <div>내 스케줄을 불러오는데 실패했습니다.</div>;
+  }
 
   return (
     <>
