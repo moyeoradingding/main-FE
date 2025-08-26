@@ -23,17 +23,26 @@ export interface BookmarkIdol {
 
 export interface BookmarkSchedule {
   id: number;
-  schedule_id: number;
+  schedule_type: string;
+  schedule_details: string;
+}
+
+export interface RawScheduleContent {
+  id: number;
+  title: string;
   start_time: string;
   end_time: string;
   location: string;
   description: string;
-  entity_type: string;
-  entity_name: string;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+  idol?: number;
+  group?: number;
 }
 
 export interface BookmarkScheduleDetail {
   id: number;
   schedule_type: string;
-  schedule_details: string;
+  schedule_details: RawScheduleContent;
 }
