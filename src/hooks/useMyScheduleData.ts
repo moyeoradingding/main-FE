@@ -32,6 +32,7 @@ export function useMyScheduleData() {
         location: scheduleContent.location,
         description: scheduleContent.description,
         isPublic: scheduleContent.is_public,
+        isBookmarked: true,
       };
 
       if (scheduleContent.idol) {
