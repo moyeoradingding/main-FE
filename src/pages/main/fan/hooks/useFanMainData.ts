@@ -3,9 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
-import { fetchIdolDetail } from '@/api/idolApi';
+import { fetchIdolDetail, fetchIdolSchedules } from '@/api/idolApi';
 
 import { useBookmarkSync } from '@/hooks/useBookmarkSync';
+
+// ⚠️ TODO(삭제 예정): 스케줄 API가 안정되면 아래 목업 import는 제거
 import { ALL_SCHEDULES } from '@/mocks/data';
 
 import type { Schedule } from '@/types/schedule';
@@ -24,6 +26,12 @@ export function useFanMainData() {
     queryKey: ['idol', 'detail', parsedIdolId],
     enabled: Number.isFinite(parsedIdolId) && parsedIdolId > 0,
     queryFn: () => fetchIdolDetail(parsedIdolId),
+  });
+
+  const { data: idolSchedulesFromApi } = useQuery({
+    queryKey: ['idol', 'schedules', parsedIdolId],
+    enabled: Number.isFinite(parsedIdolId) && parsedIdolId > 0,
+    queryFn: () => fetchIdolSchedules(parsedIdolId),
   });
 
   const currentIdol = useMemo(
@@ -52,11 +60,30 @@ export function useFanMainData() {
       return;
     }
 
-    // ⚠️ 스케줄은 아직 목업(ALL_SCHEDULES) 필터 유지
-    //    → 추후 /api/v1/idols/{id}/schedules/ 로 교체 예정
+    const mappedFromApi: Schedule[] = (idolSchedulesFromApi ?? []).map(
+      (it: any) => ({
+        id: it.id ?? Math.random(),
+        title: it.title ?? '',
+        startTime: it.start_time ?? it.startTime ?? '',
+        endTime: it.end_time ?? it.endTime ?? '',
+        description: it.description ?? '',
+        isPublic: Boolean(it.is_public ?? it.isPublic ?? true),
+        idol: { id: currentIdol.id, name: currentIdol.name },
+        group: undefined,
+        members: undefined,
+        location: it.location ?? '',
+      }),
+    ) as Schedule[];
+
+    if (mappedFromApi.length > 0) {
+      setFilteredSchedules(mappedFromApi);
+      return;
+    }
+
+    // ⚠️ 서버 데이터가 아직 없으면 → 기존 목업 로직으로 fallback
     const { name: idolName, groupName } = currentIdol;
 
-    const schedules = ALL_SCHEDULES.filter(schedule => {
+    const schedulesFromMock = ALL_SCHEDULES.filter(schedule => {
       if (isIdolSchedule(schedule) && schedule.idol.name === idolName)
         return true;
       if (isGroupSchedule(schedule) && schedule.group.name === groupName)
@@ -67,8 +94,8 @@ export function useFanMainData() {
       return false;
     });
 
-    setFilteredSchedules(schedules);
-  }, [currentIdol]);
+    setFilteredSchedules(schedulesFromMock);
+  }, [currentIdol, idolSchedulesFromApi]);
 
   const handleFavoriteToggle = useCallback(() => {
     if (parsedIdolId) toggleFavorite(parsedIdolId);
