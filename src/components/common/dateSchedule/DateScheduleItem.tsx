@@ -125,7 +125,7 @@ export default function DateScheduleItem({
             )}
             <p>날짜: {formatDateSlash(displayDate)}</p>
 
-            {isGroupSchedule(item) && (
+            {userRole !== 'idol' && isGroupSchedule(item) && (
               <p>
                 아티스트: {item.group.name}
                 {item.members &&
@@ -133,7 +133,9 @@ export default function DateScheduleItem({
                   ` (${item.members.map(m => m.name).join(', ')})`}
               </p>
             )}
-            {isIdolSchedule(item) && <p>아티스트: {item.idol.name}</p>}
+            {userRole !== 'idol' && isIdolSchedule(item) && (
+              <p>아티스트: {item.idol.name}</p>
+            )}
 
             {item.description && (
               <p className="mt-2 whitespace-pre-wrap">{item.description}</p>
