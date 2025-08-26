@@ -111,7 +111,7 @@ export const ALL_SCHEDULES = [
     endTime: '2025-08-28T16:00:00',
     description: 'KBS 뮤직뱅크 사전 리허설 및 인터뷰',
     isPublic: true,
-    idol: { id: 2, name: '카리나' },
+    idol: { id: 1, name: '카리나' },
   },
   {
     id: 13,
@@ -120,7 +120,7 @@ export const ALL_SCHEDULES = [
     endTime: '2025-08-28T17:30:00',
     description: 'KBS 뮤직뱅크 본방송 출연',
     isPublic: true,
-    idol: { id: 2, name: '카리나' },
+    idol: { id: 1, name: '카리나' },
   },
   {
     id: 14,
@@ -129,7 +129,7 @@ export const ALL_SCHEDULES = [
     endTime: '2025-08-28T21:00:00',
     description: 'VOGUE 코리아 9월호 단독 화보 촬영',
     isPublic: true,
-    idol: { id: 2, name: '카리나' },
+    idol: { id: 1, name: '카리나' },
   },
   {
     id: 15,
@@ -138,7 +138,7 @@ export const ALL_SCHEDULES = [
     endTime: '2025-08-28T22:00:00',
     description: '카리나 솔로 앨범 발매 기념 팬사인회',
     isPublic: true,
-    idol: { id: 2, name: '카리나' },
+    idol: { id: 1, name: '카리나' },
   },
 
   // 🎵 에스파 그룹 활동도 추가 (카리나가 멤버로 참여)
@@ -151,7 +151,7 @@ export const ALL_SCHEDULES = [
     isPublic: true,
     group: { id: 200, name: '에스파' },
     members: [
-      { id: 2, name: '카리나' },
+      { id: 1, name: '카리나' },
       { id: 21, name: '윈터' },
       { id: 22, name: '지젤' },
       { id: 23, name: '닝닝' },
