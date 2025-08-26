@@ -2,7 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 
-import { createNewChatRoomAPI, getMyChatRoomListAPI } from '@/api/chatApi';
+import {
+  createNewChatRoomAPI,
+  getGroupMembersAPI,
+  getMyChatRoomListAPI,
+} from '@/api/chatApi';
 import { useChatStore } from '@/stores/chatRoomIdStore';
 import { useUserStore } from '@/stores/userStore';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
@@ -11,13 +15,19 @@ import ChatComposer from './sections/chatComposer/ChatComposer';
 import ChatContactList from './sections/chatContactList/ChatContactList';
 import ChatMessageList from './sections/chatMessageList/ChatMessageList';
 
-const GROUP_NAME_TEST = 'test';
+interface MemberTypes {
+  id: number;
+  nickname: string;
+  role: 'IDOL' | 'MANAGER';
+  profile_image_url: string | null;
+}
 
 function Chat() {
   const [isVisible, setIsVisible] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const { roomId, setRoomId } = useChatStore();
-  const { accessToken } = useUserStore();
+  const { user, accessToken } = useUserStore();
+  const userId = user?.user_id;
   const queryClient = useQueryClient();
 
   const handleToggleConversationList = () => {
@@ -29,8 +39,16 @@ function Chat() {
     queryFn: getMyChatRoomListAPI,
   });
 
+  const groupMembersQuery = useQuery({
+    queryKey: ['getGroupMembers'],
+    queryFn: getGroupMembersAPI,
+  });
+
   const { mutate: createRoom } = useMutation({
-    mutationFn: () => createNewChatRoomAPI(GROUP_NAME_TEST),
+    mutationFn: (memberIds: number[]) => {
+      const currentUserId = userId || memberIds[0];
+      return createNewChatRoomAPI(currentUserId, memberIds);
+    },
     onSuccess: newRoom => {
       showSuccessToast('채팅방 생성 성공');
       setRoomId(newRoom.id);
@@ -51,14 +69,22 @@ function Chat() {
       return;
     }
 
-    if (roomList.count === 0) {
-      createRoom();
+    if (roomList.count === 0 && groupMembersQuery.data) {
+      const memberIds = groupMembersQuery.data.map(
+        (member: MemberTypes) => member.id,
+      );
+      createRoom(memberIds);
     } else {
       const currentRoomId = roomList.results[0].id;
       setRoomId(currentRoomId);
-      showSuccessToast(`채팅방 목록을 불러왔습니다!`);
     }
-  }, [createRoom, roomListQuery.data, roomListQuery.isError, setRoomId]);
+  }, [
+    createRoom,
+    groupMembersQuery.data,
+    roomListQuery.data,
+    roomListQuery.isError,
+    setRoomId,
+  ]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -80,6 +106,9 @@ function Chat() {
     };
 
     setSocket(ws);
+
+    // eslint-disable-next-line consistent-return
+    return () => ws.close();
   }, [accessToken, roomId]);
 
   return (
