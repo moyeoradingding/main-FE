@@ -4,11 +4,11 @@ import { useMemo } from 'react';
 import { getBookmarkSchedules } from '@/api/bookmarkScheduleApi';
 import type { BookmarkSchedule, RawScheduleContent } from '@/types/bookmark';
 import type {
-  Schedule,
-  IdolInfo,
   GroupInfo,
-  IdolSchedule,
   GroupSchedule,
+  IdolInfo,
+  IdolSchedule,
+  Schedule,
 } from '@/types/schedule';
 
 export function useMyScheduleData() {
@@ -43,7 +43,8 @@ export function useMyScheduleData() {
             name: scheduleContent.title,
           } as IdolInfo,
         } as IdolSchedule;
-      } else if (scheduleContent.group) {
+      }
+      if (scheduleContent.group) {
         return {
           ...baseSchedule,
           group: {
@@ -51,9 +52,8 @@ export function useMyScheduleData() {
             name: scheduleContent.title,
           } as GroupInfo,
         } as GroupSchedule;
-      } else {
-        return baseSchedule as Schedule;
       }
+      return baseSchedule as Schedule;
     });
   }, [data]);
 

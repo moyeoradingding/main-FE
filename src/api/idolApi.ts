@@ -1,6 +1,7 @@
 import axiosInstance from '@/api/axiosInstance';
 import type { DRFPage, Idol, IdolServer } from '@/types/idol';
 import { avatarFromServerOrDicebear } from '@/utils/avatar';
+
 export type { Idol } from '@/types/idol';
 
 export async function searchIdolsApi(

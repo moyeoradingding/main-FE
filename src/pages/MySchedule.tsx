@@ -1,10 +1,10 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { addMySchedule, removeMySchedule } from '@/api/bookmarkScheduleApi';
 import Calendar from '@/components/common/calendar/Calendar';
 import DateScheduleList from '@/components/common/dateSchedule/DateScheduleList';
-import { addMySchedule, removeMySchedule } from '@/api/bookmarkScheduleApi';
 import { useMyScheduleData } from '@/hooks/useMyScheduleData';
 import type { Schedule } from '@/types/schedule';
 
@@ -19,14 +19,12 @@ export default function MySchedule() {
     mutationFn: async (schedule: Schedule) => {
       if (schedule.isBookmarked) {
         await removeMySchedule(schedule.id);
+      } else if ('idol' in schedule && schedule.idol) {
+        await addMySchedule({ idol_schedule: schedule.idol.id });
+      } else if ('group' in schedule && schedule.group) {
+        await addMySchedule({ group_schedule: schedule.group.id });
       } else {
-        if ('idol' in schedule && schedule.idol) {
-          await addMySchedule({ idol_schedule: schedule.idol.id });
-        } else if ('group' in schedule && schedule.group) {
-          await addMySchedule({ group_schedule: schedule.group.id });
-        } else {
-          throw new Error('Cannot bookmark schedule without idol or group ID');
-        }
+        throw new Error('Cannot bookmark schedule without idol or group ID');
       }
     },
     onSuccess: () => {

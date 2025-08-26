@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -10,8 +10,8 @@ import {
 } from '@/api/bookmarkScheduleApi';
 import { fetchIdolDetail, fetchIdolSchedules } from '@/api/idolApi';
 import { useBookmarkSync } from '@/hooks/useBookmarkSync';
-import type { Schedule } from '@/types/schedule';
 import { toggleFavorite } from '@/mocks/data/idols';
+import type { Schedule } from '@/types/schedule';
 
 export function useFanMainData() {
   const { idolId = '' } = useParams<{ idolId: string }>();
@@ -57,14 +57,12 @@ export function useFanMainData() {
         } else {
           throw new Error('Bookmark entry not found for schedule ID');
         }
+      } else if ('idol' in schedule && schedule.idol) {
+        await addMySchedule({ idol_schedule: schedule.realScheduleId });
+      } else if ('group' in schedule && schedule.group) {
+        await addMySchedule({ group_schedule: schedule.realScheduleId });
       } else {
-        if ('idol' in schedule && schedule.idol) {
-          await addMySchedule({ idol_schedule: schedule.realScheduleId });
-        } else if ('group' in schedule && schedule.group) {
-          await addMySchedule({ group_schedule: schedule.realScheduleId });
-        } else {
-          throw new Error('Cannot bookmark schedule without idol or group ID');
-        }
+        throw new Error('Cannot bookmark schedule without idol or group ID');
       }
     },
     onSuccess: () => {

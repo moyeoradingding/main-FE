@@ -40,7 +40,7 @@ export function getScheduleActions(
     onDeleteClick,
   }: Handlers,
 ): ScheduleActionInfo[] {
-  const isBookmarked = item.isBookmarked;
+  const { isBookmarked } = item;
 
   switch (userRole) {
     case 'fan':
