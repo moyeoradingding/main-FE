@@ -18,6 +18,7 @@ export default function FanMainPage() {
     currentIdol,
     isFavorite,
     handleFavoriteToggle,
+    toggleScheduleBookmark,
   } = useFanMainData();
 
   const handleSearchClick = () => navigate('/search');
@@ -80,6 +81,7 @@ export default function FanMainPage() {
             userRole="fan"
             selectedDate={selectedDate.format('YYYY-MM-DD')}
             schedules={filteredSchedules}
+            toggleScheduleBookmark={toggleScheduleBookmark}
           />
         }
       />

@@ -1,14 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import {
+  addMySchedule,
+  getBookmarkSchedules,
+  removeMySchedule,
+} from '@/api/bookmarkScheduleApi';
 import { fetchIdolDetail, fetchIdolSchedules } from '@/api/idolApi';
 import { useBookmarkSync } from '@/hooks/useBookmarkSync';
-// ⚠️ TODO(삭제 예정): 스케줄 API가 안정되면 아래 목업 import는 제거
-import { ALL_SCHEDULES } from '@/mocks/data';
 import type { Schedule } from '@/types/schedule';
-import { isGroupSchedule, isIdolSchedule } from '@/types/schedule';
+import { toggleFavorite } from '@/mocks/data/idols';
 
 export function useFanMainData() {
   const { idolId = '' } = useParams<{ idolId: string }>();
@@ -17,7 +20,8 @@ export function useFanMainData() {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
 
-  const { favoriteIdols, toggleFavorite } = useBookmarkSync();
+  const { favoriteIdols } = useBookmarkSync();
+  const queryClient = useQueryClient();
 
   const { data: idolDetail } = useQuery({
     queryKey: ['idol', 'detail', parsedIdolId],
@@ -29,6 +33,46 @@ export function useFanMainData() {
     queryKey: ['idol', 'schedules', parsedIdolId],
     enabled: Number.isFinite(parsedIdolId) && parsedIdolId > 0,
     queryFn: () => fetchIdolSchedules(parsedIdolId),
+  });
+
+  const { data: rawBookmarkedSchedules } = useQuery({
+    queryKey: ['myBookmarkEntries'],
+    queryFn: getBookmarkSchedules,
+  });
+
+  const bookmarkedScheduleIds = useMemo(() => {
+    return new Set(
+      rawBookmarkedSchedules?.map(s => s.schedule_details.id) ?? [],
+    );
+  }, [rawBookmarkedSchedules]);
+
+  const { mutate: toggleScheduleBookmark } = useMutation({
+    mutationFn: async (schedule: Schedule) => {
+      if (schedule.isBookmarked) {
+        const bookmarkEntry = rawBookmarkedSchedules?.find(
+          entry => entry.schedule_details.id === schedule.realScheduleId,
+        );
+        if (bookmarkEntry) {
+          await removeMySchedule(bookmarkEntry.id);
+        } else {
+          throw new Error('Bookmark entry not found for schedule ID');
+        }
+      } else {
+        if ('idol' in schedule && schedule.idol) {
+          await addMySchedule({ idol_schedule: schedule.realScheduleId });
+        } else if ('group' in schedule && schedule.group) {
+          await addMySchedule({ group_schedule: schedule.realScheduleId });
+        } else {
+          throw new Error('Cannot bookmark schedule without idol or group ID');
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['idol', 'schedules', parsedIdolId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['myBookmarkEntries'] });
+    },
   });
 
   const currentIdol = useMemo(
@@ -67,30 +111,13 @@ export function useFanMainData() {
         isPublic: Boolean(it.is_public ?? it.isPublic ?? true),
         idol: { id: currentIdol.id, name: currentIdol.name },
         location: it.location ?? '',
+        isBookmarked: bookmarkedScheduleIds.has(it.id),
+        realScheduleId: it.id,
       }),
     ) as Schedule[];
 
-    if (mappedFromApi.length > 0) {
-      setFilteredSchedules(mappedFromApi);
-      return;
-    }
-
-    // ⚠️ 서버 데이터가 아직 없으면 → 기존 목업 로직으로 fallback
-    const { name: idolName, groupName } = currentIdol;
-
-    const schedulesFromMock = ALL_SCHEDULES.filter(schedule => {
-      if (isIdolSchedule(schedule) && schedule.idol.name === idolName)
-        return true;
-      if (isGroupSchedule(schedule) && schedule.group.name === groupName)
-        return true;
-      if ('members' in schedule) {
-        return schedule.members?.some(member => member.name === idolName);
-      }
-      return false;
-    });
-
-    setFilteredSchedules(schedulesFromMock);
-  }, [currentIdol, idolSchedulesFromApi]);
+    setFilteredSchedules(mappedFromApi);
+  }, [currentIdol, idolSchedulesFromApi, bookmarkedScheduleIds]);
 
   const handleFavoriteToggle = useCallback(() => {
     if (parsedIdolId) toggleFavorite(parsedIdolId);
@@ -104,5 +131,6 @@ export function useFanMainData() {
     currentIdol,
     isFavorite,
     handleFavoriteToggle,
+    toggleScheduleBookmark,
   };
 }
