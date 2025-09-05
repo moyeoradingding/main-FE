@@ -9,7 +9,7 @@ https://www.moyeoradingding.site
 
 # 🗣️ 프로젝트 발표 자료
 - 프로젝트 기간: 2025.07.30 ~ 2025.08.26
-- 발표 자료: [ppt](https://github.com/user-attachments/files/22000732/_11._5.pdf)
+- 발표 자료: [ppt](https://www.miricanvas.com/v/150rfbc)
 
 
 # 🖥️ 서비스 소개
